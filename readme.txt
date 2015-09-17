@@ -5,3 +5,12 @@ NOTE: You will need .pem file to connect. Contact me for the file.
 
 In the cloud git project is cloned under swm-amazon folder.
 
+
+ToDo:
+-Retrieve data from the website for 
+	- Index
+	- Most helpful customer reviews (done)
+	- Customer Reviews
+-Add postgresql
+-come up with schema and tables
+-write data to DB
