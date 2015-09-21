@@ -31,3 +31,9 @@ while curPage <= totalPages:
 	curPage+=1
 	
 
+
+
+
+# http://www.amazon.com/s/ref=sr_hi_2?rh=n%3A2335752011%2Cn%3A7072561011%2Ck%3Aiphone&keywords=iphone&ie=UTF8&qid=1442465611
+# http://www.amazon.com/s/ref=sr_pg_2?rh=n%3A2335752011%2Cn%3A7072561011%2Ck%3Aiphone&page=2&keywords=iphone&ie=UTF8&qid=1442465616
+# http://www.amazon.com/s/ref=sr_pg_3?rh=n%3A2335752011%2Cn%3A7072561011%2Ck%3Aiphone&page=3&keywords=iphone&ie=UTF8&qid=1442467326
