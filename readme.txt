@@ -14,3 +14,7 @@ ToDo:
 -Add postgresql
 -come up with schema and tables
 -write data to DB
+
+
+'Files to look into'
+ProductListScraper takes the url of product list under a compnay and calls ProductPageReviewScraper for each product.
