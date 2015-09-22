@@ -54,10 +54,10 @@ def scrape(url):
             soupAllRev=BeautifulSoup.BeautifulSoup(response.content)
 
             #get the current page number
-            curReviewPage=soupAllRev.find('li',{'data-reftag':'cm_cr_pr_btm_link'})
+            curReviewPage=soupAllRev.find('li',{'data-reftag':'cm_cr_pr_btm_link','class':"a-selected page-button"})
             curReviewPageNum=int(curReviewPage.find('a').contents[0])
             print '----->:',curReviewPageNum
-            #get the last page number
+            #get the last page numbercurReviewPage=soupAllRev.find('li',{'data-reftag':'cm_cr_pr_btm_link','class':"a-selected page-button"})
             for i in soupAllRev.findAll('li',{'data-reftag':'cm_cr_pr_btm_link'}):
                 last=i.find('a').contents[0]
                 totalreviewpages=int(last)
@@ -98,6 +98,7 @@ def scrape(url):
                 nextPage = curReviewPage.findNext('li').a['href']
                 nextPageResponse = requests.get("http://www.amazon.com"+nextPage)
                 soupAllRev = BeautifulSoup.BeautifulSoup(nextPageResponse.content)
+                curReviewPage=soupAllRev.find('li',{'data-reftag':'cm_cr_pr_btm_link','class':"a-selected page-button"})
                 curReviewPageNum+=1
                 sleep(randint(1,5))
         except KeyboardInterrupt:
