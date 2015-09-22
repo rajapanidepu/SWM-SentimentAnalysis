@@ -7,8 +7,9 @@ from lxml import html
 from time import sleep
 from random import randint
 import psycopg2
-import sys, traceback
+import sys,traceback
 import eventlet
+eventlet.monkey_patch()
 
 
 def scrape(url):
@@ -41,8 +42,9 @@ def scrape(url):
 
         #insert product info into DB
         try:
+            print "INSERT INTO amazon_product(prod_brand,prod_name,prod_desc,prod_cost,prod_rating,rev_count,prod_url) VALUES(%s,%s,%s,%s,%s,%s,%s)",(prod_brand,prod_name,prod_desc,prod_cost,prod_rating,rev_count,url)
             cur.execute("INSERT INTO amazon_product(prod_brand,prod_name,prod_desc,prod_cost,prod_rating,rev_count,prod_url) VALUES(%s,%s,%s,%s,%s,%s,%s)",(prod_brand,prod_name,prod_desc,prod_cost,prod_rating,rev_count,url));
-            #get the inserted tuple product id    
+            #get the inserted tuple product id
             cur.execute("SELECT currval(pg_get_serial_sequence('amazon_product','prod_id'))")
             prod_id =  cur.fetchall()[0]
             con.commit()
@@ -52,11 +54,12 @@ def scrape(url):
             #Get the reviews page link
             allreviewslink=soup.find('a',{'class':'a-link-emphasis a-nowrap'},href=True).get('href')
             with eventlet.Timeout(60):
-               response = requests.get(allreviewslink)
+                response = requests.get(allreviewslink)
             soupAllRev=BeautifulSoup.BeautifulSoup(response.content)
 
             #get the current page number
-            curReviewPage=soupAllRev.find('li',{'class':'a-selected page-button'})
+            curReviewPage=soupAllRev.find('li',{'data-reftag':'cm_cr_pr_btm_link'})
+            print 'curReviewPage-',curReviewPage
             curReviewPageNum=int(curReviewPage.find('a').contents[0])
             print '----->:',curReviewPageNum
             #get the last page number
@@ -65,19 +68,30 @@ def scrape(url):
                 totalreviewpages=int(last)
             print '=====> Total review pages:', totalreviewpages
             #GET TO THE REVIEW PAGE AND GATHER INFORMATION AND LOOP TILL LAST PAGE
-            while(curReviewPageNum<=totalreviewpages and curReviewPageNum<=50):
+            while(curReviewPageNum<=totalreviewpages or curReviewPageNum<=50):
                 print '=====> current review page:', curReviewPageNum,'/',totalreviewpages
                 reviewDivs =soupAllRev.findAll('div',{'class':'a-section review'})
-                print len(reviewDivs)
+                print 'len(reviewDivs)-',len(reviewDivs)
                 for divI in xrange(len(reviewDivs)):
                     try:
-                        curReviewPage=soupAllRev.find('li',{'class':'a-selected page-button'})
-
-
                         div=reviewDivs[divI]
+
+                        print '----------------------------------Start-------------------------------------------'
+                        ##################
+                        ##Review Heading##
+                        ##################
                         rev_heading = div.find('a',{'class':"a-size-base a-link-normal review-title a-color-base a-text-bold"}).string
+                        print 'Store rev_heading-',rev_heading
+                        ##################
+                        ##  Review URL  ##
+                        ##################
                         rev_url = div.find('a',{'class':"a-size-base a-link-normal review-title a-color-base a-text-bold"})['href']
+                        print 'Review URL-',rev_url
+                        ###################
+                        ##Review Username##
+                        ###################
                         rev_user =  div.find('a',{'class':"a-size-base a-link-normal author"}).string
+                        print 'Review User-',rev_user
                         # TODO: USER RANKING
                         # userURL = div.find('a',{'class':"a-size-base a-link-normal author"})['href']
                         # print userURL
@@ -89,23 +103,47 @@ def scrape(url):
                         # userTree = html.fromstring(userPageResponse._content);
                         # print tree.xpath('/html/body/div[2]/div[2]/div/div/div/div[1]/div/span[2]/div/div[3]/a/div/span')
                         review = div.find('span',{'class':'a-size-base review-text'}).string
-                        review = ' '.join(review.split())
-                        rev_date = div.find('span',{'class':'a-size-base a-color-secondary review-date'}).string[3:]
-                        rev_rating = div.find('span',{'class':'a-icon-alt'}).string[:3]
+                        ##########
+                        ##Review##
+                        ##########
+                        try:
+                            review = ' '.join(review.split())
+                        except AttributeError:
+                            review = 'null'
+                        print 'Review: ',review
+                        ##################
+                        ## Review Date ##
+                        ##################
+                        try:
+                            rev_date = div.find('span',{'class':'a-size-base a-color-secondary review-date'}).string[3:]
+                        except IndexError:
+                            rev_date = 'null'
+                        print 'Review Date: ',rev_date
+                        ##################
+                        ##Review Rating ##
+                        ##################
+                        try:
+                            rev_rating = div.find('span',{'class':'a-icon-alt'}).string[:3]
+                        except IndexError:
+                            rev_rating = 'null'
+                        print 'Review Rating: ',rev_rating
+                        ##############################
+                        ##Insert statement execution##
+                        ##############################
                         cur.execute("INSERT INTO amazon_review(prod_id,review,rev_heading,rev_date,rev_user,rev_rating,rev_url) values (%s,%s,%s,%s,%s,%s,%s)",(prod_id,review,rev_heading,rev_date,rev_user,rev_rating,rev_url))
                         con.commit()
-                        print '----------> Store rev_heading',rev_heading
+                        print '----------------------------------End-------------------------------------------'
                     except:
                         print '*************** Review Exception'
                         traceback.print_exc()
                 nextPage = curReviewPage.findNext('li').a['href']
-                # print curReviewPage.findNext('li').a
-                print nextPage
-                # sys.exit(0)
+                ################################
+                ##Wait time for each page load##
+                ################################
+                sleep(randint(10,60))
                 nextPageResponse = requests.get("http://www.amazon.com"+nextPage)
                 soupAllRev = BeautifulSoup.BeautifulSoup(nextPageResponse.content)
                 curReviewPageNum+=1
-                sleep(randint(10,50))
         except KeyboardInterrupt:
             print "Goodbye!"
             sys.exit(0)
@@ -113,8 +151,8 @@ def scrape(url):
             print '********** Exception'
             traceback.print_exc()
     except KeyboardInterrupt:
-        print "Goodbye!"
-        sys.exit(0)
+                        print "Goodbye!"
+                        sys.exit(0)
     except:
         print "***** Exception  ",traceback.print_exc();
 

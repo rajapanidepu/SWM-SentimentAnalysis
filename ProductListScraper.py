@@ -38,6 +38,5 @@ while curPage <= totalPages:
    response = requests.get("http://www.amazon.com"+nextPageURL)
    soup = BeautifulSoup.BeautifulSoup(response.content)
    curPage+=1
-   sleep(randint(10,60))
-
+   sleep(randint(1,10))
 
