@@ -65,7 +65,7 @@ def scrape(url):
                 totalreviewpages=int(last)
             print '=====> Total review pages:', totalreviewpages
             #GET TO THE REVIEW PAGE AND GATHER INFORMATION AND LOOP TILL LAST PAGE
-            while(curReviewPageNum<=totalreviewpages and curReviewPageNum<=50):
+            while(curReviewPageNum<=totalreviewpages and curReviewPageNum<=5):
                 print '=====> current review page:', curReviewPageNum,'/',totalreviewpages,' ProductId',prod_id
                 reviewDivs =soupAllRev.findAll('div',{'class':'a-section review'})
                 print len(reviewDivs)
@@ -89,11 +89,12 @@ def scrape(url):
                         # userTree = html.fromstring(userPageResponse._content);
                         # print tree.xpath('/html/body/div[2]/div[2]/div/div/div/div[1]/div/span[2]/div/div[3]/a/div/span')
                         review = div.find('span',{'class':'a-size-base review-text'}).string
-                        review = ' '.join(review.split())
+
+                        review = ''.join(str(div.find('span',{'class':'a-size-base review-text'}).contents))
                         rev_date = div.find('span',{'class':'a-size-base a-color-secondary review-date'}).string[3:]
                         rev_rating = div.find('span',{'class':'a-icon-alt'}).string[:3]
                         cur.execute("INSERT INTO amazon_review(prod_id,review,rev_heading,rev_date,rev_user,rev_rating,rev_url) values (%s,%s,%s,%s,%s,%s,%s)",(prod_id,review,rev_heading,rev_date,rev_user,rev_rating,rev_url))
-                        print "INSERT INTO amazon_review(prod_id,review,rev_heading,rev_date,rev_user,rev_rating,rev_url) values (%s,%s,%s,%s,%s,%s,%s)",(prod_id,review,rev_heading,rev_date,rev_user,rev_rating,rev_url)
+                
                         con.commit()
                         print '----------> Store rev_heading',rev_heading
                     except:
