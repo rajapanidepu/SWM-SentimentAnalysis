@@ -1,0 +1,21 @@
+-- Table: amazon_product
+
+-- DROP TABLE amazon_product;
+
+CREATE TABLE amazon_product
+(
+  prod_id serial NOT NULL,
+  prod_brand text,
+  prod_name text,
+  prod_desc text,
+  prod_cost numeric(10,2),
+  prod_rating numeric(4,2),
+  rev_count integer,
+  prod_url text,
+  CONSTRAINT amazon_product_pkey PRIMARY KEY (prod_id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE amazon_product
+  OWNER TO postgres;

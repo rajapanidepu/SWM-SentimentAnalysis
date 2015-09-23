@@ -31,12 +31,15 @@ while curPage <= totalPages:
    for link in set(links):
        print '\nProduct:',link 
        productScraper.scrape(link)
-
-   currentPage = soup.find('span',{'class':'pagnCur'})
-   nextPage = currentPage.findNext('span')
-   nextPageURL =  nextPage.a['href']
-   response = requests.get("http://www.amazon.com"+nextPageURL)
-   soup = BeautifulSoup.BeautifulSoup(response.content)
-   curPage+=1
+   try:
+       currentPage = soup.find('span',{'class':'pagnCur'})
+       nextPage = currentPage.findNext('span')
+       nextPageURL =  nextPage.a['href']
+       response = requests.get("http://www.amazon.com"+nextPageURL)
+       soup = BeautifulSoup.BeautifulSoup(response.content)
+       curPage+=1
+   except:
+       print "error in list pagination quiting"
+       break
    sleep(randint(1,10))
 

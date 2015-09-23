@@ -1,0 +1,22 @@
+-- Table: amazon_review
+
+-- DROP TABLE amazon_review;
+
+CREATE TABLE amazon_review
+(
+  review_id serial NOT NULL,
+  prod_id serial NOT NULL,
+  review text,
+  rev_heading text,
+  rev_date date,
+  rev_user text,
+  rev_rating numeric(4,2),
+  rev_user_ranking numeric(10,2),
+  rev_url text,
+  CONSTRAINT amazon_review_pkey PRIMARY KEY (review_id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE amazon_review
+  OWNER TO postgres;

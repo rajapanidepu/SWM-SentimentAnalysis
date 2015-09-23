@@ -44,7 +44,7 @@ def scrape(url):
             cur.execute("INSERT INTO amazon_product(prod_brand,prod_name,prod_desc,prod_cost,prod_rating,rev_count,prod_url) VALUES(%s,%s,%s,%s,%s,%s,%s)",(prod_brand,prod_name,prod_desc,prod_cost,prod_rating,rev_count,url));
             #get the inserted tuple product id    
             cur.execute("SELECT currval(pg_get_serial_sequence('amazon_product','prod_id'))")
-            prod_id =  cur.fetchall()[0]
+            prod_id =  cur.fetchone()[0]
             con.commit()
         except Exception as e:
             print '***** DBException',e
@@ -52,7 +52,7 @@ def scrape(url):
             #Get the reviews page link
             allreviewslink=soup.find('a',{'class':'a-link-emphasis a-nowrap'},href=True).get('href')
             with eventlet.Timeout(60):
-               response = requests.get(allreviewslink)
+                response = requests.get(allreviewslink)
             soupAllRev=BeautifulSoup.BeautifulSoup(response.content)
 
             #get the current page number
@@ -66,7 +66,7 @@ def scrape(url):
             print '=====> Total review pages:', totalreviewpages
             #GET TO THE REVIEW PAGE AND GATHER INFORMATION AND LOOP TILL LAST PAGE
             while(curReviewPageNum<=totalreviewpages and curReviewPageNum<=50):
-                print '=====> current review page:', curReviewPageNum,'/',totalreviewpages
+                print '=====> current review page:', curReviewPageNum,'/',totalreviewpages,' ProductId',prod_id
                 reviewDivs =soupAllRev.findAll('div',{'class':'a-section review'})
                 print len(reviewDivs)
                 for divI in xrange(len(reviewDivs)):
@@ -93,6 +93,7 @@ def scrape(url):
                         rev_date = div.find('span',{'class':'a-size-base a-color-secondary review-date'}).string[3:]
                         rev_rating = div.find('span',{'class':'a-icon-alt'}).string[:3]
                         cur.execute("INSERT INTO amazon_review(prod_id,review,rev_heading,rev_date,rev_user,rev_rating,rev_url) values (%s,%s,%s,%s,%s,%s,%s)",(prod_id,review,rev_heading,rev_date,rev_user,rev_rating,rev_url))
+                        print "INSERT INTO amazon_review(prod_id,review,rev_heading,rev_date,rev_user,rev_rating,rev_url) values (%s,%s,%s,%s,%s,%s,%s)",(prod_id,review,rev_heading,rev_date,rev_user,rev_rating,rev_url)
                         con.commit()
                         print '----------> Store rev_heading',rev_heading
                     except:
