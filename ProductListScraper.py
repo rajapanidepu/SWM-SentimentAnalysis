@@ -28,7 +28,7 @@ while curPage <= totalPages:
    items = tree.xpath('.//*/div/div[2]/div[1]/a/h2/text()')
    links = tree.xpath('.//*/div/div[2]/div[1]/a/h2/../../a/@href')
 
-   for link in links:
+   for link in set(links):
        print '\nProduct:',link 
        productScraper.scrape(link)
 
