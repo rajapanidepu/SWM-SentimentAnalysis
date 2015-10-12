@@ -32,7 +32,7 @@ for record in results:
     try:
         matchForAspects = mystring.replace("<span>", "")
         matchForAspects = matchForAspects.replace("</span>", "")
-        matchForAspects = matchForAspects.replace("<br>", ",")
+        matchForAspects = matchForAspects.replace("<br>", ",").replace("'","")
         print matchForAspects
     except:
         print 'Match not found'
@@ -44,7 +44,7 @@ for record in results:
     try:
         matchForConcepts = mystring.replace("<span>", "")
         matchForConcepts = matchForConcepts.replace("</span>", "")
-        matchForConcepts = matchForConcepts.replace("<br>", ",")
+        matchForConcepts = matchForConcepts.replace("<br>", ",").replace("'","")
         print matchForConcepts
     except:
         print 'Match not found'
