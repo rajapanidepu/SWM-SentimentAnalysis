@@ -5,7 +5,7 @@ import thread
 import sys
 
 def getChunks():
-    query = 'Select * from amazon_review_mohan_senti'
+    query = 'Select * from amazon_review'
     cur.execute(query);
     results = cur.fetchall()
     chunks=[results[x:x+1003] for x in xrange(0, len(results), 1003)]
@@ -33,7 +33,7 @@ def HitInThread(threadName,chunk):
         try:
             matchForAspects = mystring.replace("<span>", "")
             matchForAspects = matchForAspects.replace("</span>", "")
-            matchForAspects = matchForAspects.replace("<br>", ",")
+            matchForAspects = matchForAspects.replace("<br>", ",").replace("'","")
             print matchForAspects
         except:
             print 'Match not found'
@@ -45,13 +45,13 @@ def HitInThread(threadName,chunk):
         try:
             matchForConcepts = mystring.replace("<span>", "")
             matchForConcepts = matchForConcepts.replace("</span>", "")
-            matchForConcepts = matchForConcepts.replace("<br>", ",")
+            matchForConcepts = matchForConcepts.replace("<br>", ",").replace("'","")
             print matchForConcepts
         except:
             print 'Match not found'
             matchForConcepts = ''
 
-        updateQuery = 'update amazon_review_mohan_senti SET polarity='+polarity+', aspects='+matchForAspects+', concepts = '+matchForConcepts+' where review_id='+str(record[0]);
+        updateQuery = 'update amazon_review SET polarity=\''+polarity+'\', aspects=\''+str(matchForAspects)+'\', concepts = \''+str(matchForConcepts)+'\' where review_id='+str(record[0])
         cur.execute(updateQuery);
 
 
@@ -60,13 +60,16 @@ con.autocommit = True
 cur = con.cursor()
 chunks = getChunks()
 try:
-    thread.start_new_thread( HitInThread, ("Thread-1", chunk[0], ) )
-    thread.start_new_thread( HitInThread, ("Thread-2", chunk[1], ) )
-    thread.start_new_thread( HitInThread, ("Thread-2", chunk[2], ) )
+    thread.start_new_thread( HitInThread, ("Thread-1", chunks[0], ) )
+    thread.start_new_thread( HitInThread, ("Thread-2", chunks[1], ) )
+    thread.start_new_thread( HitInThread, ("Thread-3", chunks[2], ) )
+    thread.start_new_thread( HitInThread, ("Thread-4", chunks[3], ) )
 except:
     print "Error: unable to start thread"
-    print sys.exc_info()[0]
+    print sys.exc_info()
 
+while(1):
+    pass
 
 
 '''for record in results:
